@@ -58,13 +58,12 @@ Step 2. Add the dependency
         utils.editEnd();
         
 	
-	or 链式调用
+or 链式调用:
+
         FastSaveUtils.get().editStart(context).save("1123","大事记").save("nmiah",1002398).editEnd();
 	
         if (!FastSaveUtils.checkAndReplace(this,"hhh", "判断是否相同,不相同则替换该值," +
                                                       "返回false为不相同"))
         {
-            //不相同的值,并且替换为新的value
+            //这里为不相同的值,并且已替换为新的value
         }
-
-	or 链式调用
