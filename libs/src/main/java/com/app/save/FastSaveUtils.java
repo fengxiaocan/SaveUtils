@@ -20,104 +20,91 @@ import static com.app.save.SaveDatabase.VALUE_NAME;
 /**
  * 快速保存工具类,使用数据库实现,可以保存基本类型数据
  */
-public class FastSaveUtils {
+public class FastSaveUtils{
     private static FastSaveUtils sInstance;
 
     private SaveDatabase databaseHelper;
     private SQLiteDatabase writableDatabase;
 
-    public synchronized FastSaveUtils editStart(Context context) {
-        if (databaseHelper == null) {
-            databaseHelper = new SaveDatabase(context);
+    public synchronized FastSaveUtils editStart(Context context){
+        if(databaseHelper==null){
+            databaseHelper=new SaveDatabase(context);
         }
-        if (writableDatabase == null || !writableDatabase.isOpen() ||
-            writableDatabase.isReadOnly())
-        {
-            writableDatabase = databaseHelper.getWritableDatabase();
+        if(writableDatabase==null||!writableDatabase.isOpen()||writableDatabase.isReadOnly()){
+            writableDatabase=databaseHelper.getWritableDatabase();
         }
         return this;
     }
 
-    public synchronized FastSaveUtils editEnd() {
-        if (writableDatabase != null) {
+    public synchronized FastSaveUtils editEnd(){
+        if(writableDatabase!=null){
             writableDatabase.close();
         }
-        if (databaseHelper != null) {
+        if(databaseHelper!=null){
             databaseHelper.close();
         }
-        sInstance = null;
+        sInstance=null;
         return this;
     }
 
-    public static synchronized FastSaveUtils get() {
-        if (sInstance == null) {
-            sInstance = new FastSaveUtils();
+    public static synchronized FastSaveUtils get(){
+        if(sInstance==null){
+            sInstance=new FastSaveUtils();
         }
         return sInstance;
     }
 
-    private static boolean isEquals(Object o1, Object o2) {
-        if (o1 == o2) {
+    private static boolean isEquals(Object o1,Object o2){
+        if(o1==o2){
             return true;
         }
-        if (o1 == null || o2 == null) {
+        if(o1==null||o2==null){
             return false;
         }
         return o1.equals(o2);
     }
 
     /**********STRING_TABLE**********/
-    public String getString(String key, String defaultValue) {
-        Cursor query = query(STRING_TABLE, key);
-        if (query.moveToNext()) {
-            String string = query.getString(2);
+    public String getString(String key,String defaultValue){
+        Cursor query=query(STRING_TABLE,key);
+        if(query.moveToNext()){
+            String string=query.getString(2);
             query.close();
             return string;
-        } else {
+        } else{
             query.close();
             return defaultValue;
         }
     }
 
-    public String getString(String key) {
-        return getString(key, null);
+    public String getString(String key){
+        return getString(key,null);
     }
 
-    public FastSaveUtils save(String key, String value) {
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, key);
-        values.put(VALUE_NAME, value);
-        saveContent(STRING_TABLE, key, values);
+    public FastSaveUtils save(String key,String value){
+        ContentValues values=new ContentValues();
+        values.put(KEY_NAME,key);
+        values.put(VALUE_NAME,value);
+        saveContent(STRING_TABLE,key,values);
         return this;
     }
 
-    //    public FastSaveUtils fastSave(String key, String value) {
-    //        ContentValues values = new ContentValues();
-    //        values.put(KEY_NAME, key);
-    //        values.put(VALUE_NAME, value);
-    //        fastSaveContent(STRING_TABLE, values);
-    //        return this;
-    //    }
 
-    public static String getString(Context context, String key, String defaultValue) {
-        try {
-            return get().editStart(context).getString(key, defaultValue);
-        } finally {
+    public static String getString(Context context,String key,String defaultValue){
+        try{
+            return get().editStart(context).getString(key,defaultValue);
+        } finally{
             get().editEnd();
         }
     }
 
-    public static String getString(Context context, String key) {
-        return getString(context, key, null);
+    public static String getString(Context context,String key){
+        return getString(context,key,null);
     }
 
-    public static void save(Context context, String key, String value) {
-        get().editStart(context).save(key, value).editEnd();
+    public static void save(Context context,String key,String value){
+        get().editStart(context).save(key,value).editEnd();
     }
-
-    //    public static void fastSave(Context context, String key, String value) {
-    //        get().editStart(context).fastSave(key, value).editEnd();
-    //    }
 
     /**
      * 检查是否相同,不同就替换
@@ -127,108 +114,96 @@ public class FastSaveUtils {
      * @param value
      * @return
      */
-    public static boolean checkAndReplace(Context context, String key, String value) {
-        FastSaveUtils utils = get();
+    public static boolean checkAndReplace(Context context,String key,String value){
+        FastSaveUtils utils=get();
         boolean isCheck;
-        if (isEquals(value, utils.editStart(context).getString(key))) {
+        if(isEquals(value,utils.editStart(context).getString(key))){
             //如果相等的,返回true
-            isCheck = true;
-        } else {
+            isCheck=true;
+        } else{
             //不相等的保存下来返回false
-            isCheck = false;
-            utils.save(key, value);
+            isCheck=false;
+            utils.save(key,value);
         }
         utils.editEnd();
         return isCheck;
     }
 
-    public FastSaveUtils clearString(String key) {
-        clearKey(STRING_TABLE, key);
+    public FastSaveUtils clearString(String key){
+        clearKey(STRING_TABLE,key);
         return this;
     }
 
-    public FastSaveUtils clearAllString() {
+    public FastSaveUtils clearAllString(){
         clearTable(STRING_TABLE);
         return this;
     }
 
-    public static void clearString(Context context, String key) {
+    public static void clearString(Context context,String key){
         get().editStart(context).clearString(key).editEnd();
     }
 
-    public static void clearAllString(Context context) {
+    public static void clearAllString(Context context){
         get().editStart(context).clearAllString().editEnd();
     }
 
     /**********BOOLEAN_TABLE**********/
 
-    public boolean getBoolean(String key, boolean defaultValue) {
-        Cursor query = query(BOOLEAN_TABLE, key);
-        if (query.moveToNext()) {
-            int value = query.getInt(2);
+    public boolean getBoolean(String key,boolean defaultValue){
+        Cursor query=query(BOOLEAN_TABLE,key);
+        if(query.moveToNext()){
+            int value=query.getInt(2);
             query.close();
-            return value == 1;
-        } else {
+            return value==1;
+        } else{
             query.close();
             return defaultValue;
         }
     }
 
-    public boolean getBoolean(String key) {
-        return getBoolean(key, false);
+    public boolean getBoolean(String key){
+        return getBoolean(key,false);
     }
 
-    public FastSaveUtils save(String key, boolean value) {
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, key);
-        values.put(VALUE_NAME, value ? 1 : 0);
-        saveContent(BOOLEAN_TABLE, key, values);
+    public FastSaveUtils save(String key,boolean value){
+        ContentValues values=new ContentValues();
+        values.put(KEY_NAME,key);
+        values.put(VALUE_NAME,value ? 1 : 0);
+        saveContent(BOOLEAN_TABLE,key,values);
         return this;
     }
-    //
-    //    public FastSaveUtils fastSave(String key, boolean value) {
-    //        ContentValues values = new ContentValues();
-    //        values.put(KEY_NAME, key);
-    //        values.put(VALUE_NAME, value ? 1 : 0);
-    //        fastSaveContent(BOOLEAN_TABLE, values);
-    //        return this;
-    //    }
 
-    public static boolean getBoolean(Context context, String key, boolean defaultValue) {
-        try {
-            return get().editStart(context).getBoolean(key, defaultValue);
-        } finally {
+    public static boolean getBoolean(Context context,String key,boolean defaultValue){
+        try{
+            return get().editStart(context).getBoolean(key,defaultValue);
+        } finally{
             get().editEnd();
         }
     }
 
-    public static boolean getBoolean(Context context, String key) {
-        return getBoolean(context, key, false);
+    public static boolean getBoolean(Context context,String key){
+        return getBoolean(context,key,false);
     }
 
-    public static void save(Context context, String key, boolean value) {
-        get().editStart(context).save(key, value).editEnd();
+    public static void save(Context context,String key,boolean value){
+        get().editStart(context).save(key,value).editEnd();
     }
 
-    //    public static void fastSave(Context context, String key, boolean value) {
-    //        get().editStart(context).fastSave(key, value).editEnd();
-    //    }
-
-    public FastSaveUtils clearBoolean(String key) {
-        clearKey(BOOLEAN_TABLE, key);
+    public FastSaveUtils clearBoolean(String key){
+        clearKey(BOOLEAN_TABLE,key);
         return this;
     }
 
-    public FastSaveUtils clearAllBoolean() {
+    public FastSaveUtils clearAllBoolean(){
         clearTable(BOOLEAN_TABLE);
         return this;
     }
 
-    public static void clearBoolean(Context context, String key) {
+    public static void clearBoolean(Context context,String key){
         get().editStart(context).clearBoolean(key).editEnd();
     }
 
-    public static void clearAllBoolean(Context context) {
+    public static void clearAllBoolean(Context context){
         get().editStart(context).clearAllBoolean().editEnd();
     }
 
@@ -240,16 +215,16 @@ public class FastSaveUtils {
      * @param value
      * @return
      */
-    public static boolean checkAndReplace(Context context, String key, boolean value) {
-        FastSaveUtils utils = get();
+    public static boolean checkAndReplace(Context context,String key,boolean value){
+        FastSaveUtils utils=get();
         boolean isCheck;
-        if (value == utils.editStart(context).getBoolean(key, !value)) {
+        if(value==utils.editStart(context).getBoolean(key,!value)){
             //如果相等的,返回true
-            isCheck = true;
-        } else {
+            isCheck=true;
+        } else{
             //不相等的保存下来返回false
-            isCheck = false;
-            utils.save(key, value);
+            isCheck=false;
+            utils.save(key,value);
         }
         utils.editEnd();
         return isCheck;
@@ -258,76 +233,64 @@ public class FastSaveUtils {
 
     /**********LONG_TABLE**********/
 
-    public FastSaveUtils clearLong(String key) {
-        clearKey(LONG_TABLE, key);
+    public FastSaveUtils clearLong(String key){
+        clearKey(LONG_TABLE,key);
         return this;
     }
 
-    public FastSaveUtils clearAllLong() {
+    public FastSaveUtils clearAllLong(){
         clearTable(LONG_TABLE);
         return this;
     }
 
-    public static void clearLong(Context context, String key) {
+    public static void clearLong(Context context,String key){
         get().editStart(context).clearLong(key).editEnd();
     }
 
-    public static void clearAllLong(Context context) {
+    public static void clearAllLong(Context context){
         get().editStart(context).clearAllLong().editEnd();
     }
 
 
-    public long getLong(String key, long defaultValue) {
-        Cursor query = query(LONG_TABLE, key);
-        if (query.moveToNext()) {
-            long value = query.getLong(2);
+    public long getLong(String key,long defaultValue){
+        Cursor query=query(LONG_TABLE,key);
+        if(query.moveToNext()){
+            long value=query.getLong(2);
             query.close();
             return value;
-        } else {
+        } else{
             query.close();
             return defaultValue;
         }
     }
 
-    public long getLong(String key) {
-        return getLong(key, 0);
+    public long getLong(String key){
+        return getLong(key,0);
     }
 
-    public FastSaveUtils save(String key, long value) {
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, key);
-        values.put(VALUE_NAME, value);
-        saveContent(LONG_TABLE, key, values);
+    public FastSaveUtils save(String key,long value){
+        ContentValues values=new ContentValues();
+        values.put(KEY_NAME,key);
+        values.put(VALUE_NAME,value);
+        saveContent(LONG_TABLE,key,values);
         return this;
     }
-    //
-    //    public FastSaveUtils fastSave(String key, long value) {
-    //        ContentValues values = new ContentValues();
-    //        values.put(KEY_NAME, key);
-    //        values.put(VALUE_NAME, value);
-    //        fastSaveContent(LONG_TABLE, values);
-    //        return this;
-    //    }
 
-    public static long getLong(Context context, String key, long defaultValue) {
-        try {
-            return get().editStart(context).getLong(key, defaultValue);
-        } finally {
+    public static long getLong(Context context,String key,long defaultValue){
+        try{
+            return get().editStart(context).getLong(key,defaultValue);
+        } finally{
             get().editEnd();
         }
     }
 
-    public static long getLong(Context context, String key) {
-        return getLong(context, key, 0);
+    public static long getLong(Context context,String key){
+        return getLong(context,key,0);
     }
 
-    public static void save(Context context, String key, long value) {
-        get().editStart(context).save(key, value).editEnd();
+    public static void save(Context context,String key,long value){
+        get().editStart(context).save(key,value).editEnd();
     }
-
-    //    public static void fastSave(Context context, String key, long value) {
-    //        get().editStart(context).fastSave(key, value).editEnd();
-    //    }
 
     /**
      * 检查是否相同,不同就替换
@@ -337,91 +300,79 @@ public class FastSaveUtils {
      * @param value
      * @return
      */
-    public static boolean checkAndReplace(Context context, String key, long value) {
-        FastSaveUtils utils = get();
+    public static boolean checkAndReplace(Context context,String key,long value){
+        FastSaveUtils utils=get();
         boolean isCheck;
-        if (value == utils.editStart(context).getLong(key)) {
+        if(value==utils.editStart(context).getLong(key)){
             //如果相等的,返回true
-            isCheck = true;
-        } else {
+            isCheck=true;
+        } else{
             //不相等的保存下来返回false
-            isCheck = false;
-            utils.save(key, value);
+            isCheck=false;
+            utils.save(key,value);
         }
         utils.editEnd();
         return isCheck;
     }
 
     /**********INT_TABLE**********/
-    public FastSaveUtils clearInt(String key) {
-        clearKey(INT_TABLE, key);
+    public FastSaveUtils clearInt(String key){
+        clearKey(INT_TABLE,key);
         return this;
     }
 
-    public FastSaveUtils clearAllInt() {
+    public FastSaveUtils clearAllInt(){
         clearTable(INT_TABLE);
         return this;
     }
 
-    public static void clearInt(Context context, String key) {
+    public static void clearInt(Context context,String key){
         get().editStart(context).clearInt(key).editEnd();
     }
 
-    public static void clearAllInt(Context context) {
+    public static void clearAllInt(Context context){
         get().editStart(context).clearAllInt().editEnd();
     }
 
-    public int getInt(String key, int defaultValue) {
-        Cursor query = query(INT_TABLE, key);
-        if (query.moveToNext()) {
-            int value = query.getInt(2);
+    public int getInt(String key,int defaultValue){
+        Cursor query=query(INT_TABLE,key);
+        if(query.moveToNext()){
+            int value=query.getInt(2);
             query.close();
             return value;
-        } else {
+        } else{
             query.close();
             return defaultValue;
         }
     }
 
-    public int getInt(String key) {
-        return getInt(key, 0);
+    public int getInt(String key){
+        return getInt(key,0);
     }
 
-    public FastSaveUtils save(String key, int value) {
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, key);
-        values.put(VALUE_NAME, value);
-        saveContent(INT_TABLE, key, values);
+    public FastSaveUtils save(String key,int value){
+        ContentValues values=new ContentValues();
+        values.put(KEY_NAME,key);
+        values.put(VALUE_NAME,value);
+        saveContent(INT_TABLE,key,values);
         return this;
     }
 
-    //    public FastSaveUtils fastSave(String key, int value) {
-    //        ContentValues values = new ContentValues();
-    //        values.put(KEY_NAME, key);
-    //        values.put(VALUE_NAME, value);
-    //        fastSaveContent(INT_TABLE, values);
-    //        return this;
-    //    }
-
-    public static int getInt(Context context, String key, int defaultValue) {
-        try {
-            return get().editStart(context).getInt(key, defaultValue);
-        } finally {
+    public static int getInt(Context context,String key,int defaultValue){
+        try{
+            return get().editStart(context).getInt(key,defaultValue);
+        } finally{
             get().editEnd();
         }
     }
 
-    public static int getInt(Context context, String key) {
-        return getInt(context, key, 0);
+    public static int getInt(Context context,String key){
+        return getInt(context,key,0);
     }
 
-    public static void save(Context context, String key, int value) {
-        get().editStart(context).save(key, value).editEnd();
+    public static void save(Context context,String key,int value){
+        get().editStart(context).save(key,value).editEnd();
     }
-
-    //    public static void fastSave(Context context, String key, int value) {
-    //        get().editStart(context).fastSave(key, value).editEnd();
-    //    }
 
     /**
      * 检查是否相同,不同就替换
@@ -431,91 +382,79 @@ public class FastSaveUtils {
      * @param value
      * @return
      */
-    public static boolean checkAndReplace(Context context, String key, int value) {
-        FastSaveUtils utils = get();
+    public static boolean checkAndReplace(Context context,String key,int value){
+        FastSaveUtils utils=get();
         boolean isCheck;
-        if (value == utils.editStart(context).getInt(key)) {
+        if(value==utils.editStart(context).getInt(key)){
             //如果相等的,返回true
-            isCheck = true;
-        } else {
+            isCheck=true;
+        } else{
             //不相等的保存下来返回false
-            isCheck = false;
-            utils.save(key, value);
+            isCheck=false;
+            utils.save(key,value);
         }
         utils.editEnd();
         return isCheck;
     }
 
     /**********FLOAT_TABLE**********/
-    public FastSaveUtils clearFloat(String key) {
-        clearKey(FLOAT_TABLE, key);
+    public FastSaveUtils clearFloat(String key){
+        clearKey(FLOAT_TABLE,key);
         return this;
     }
 
-    public FastSaveUtils clearAllFloat() {
+    public FastSaveUtils clearAllFloat(){
         clearTable(FLOAT_TABLE);
         return this;
     }
 
-    public static void clearFloat(Context context, String key) {
+    public static void clearFloat(Context context,String key){
         get().editStart(context).clearFloat(key).editEnd();
     }
 
-    public static void clearAllFloat(Context context) {
+    public static void clearAllFloat(Context context){
         get().editStart(context).clearAllFloat().editEnd();
     }
 
-    public float getFloat(String key, float defaultValue) {
-        Cursor query = query(FLOAT_TABLE, key);
-        if (query.moveToNext()) {
-            float value = query.getFloat(2);
+    public float getFloat(String key,float defaultValue){
+        Cursor query=query(FLOAT_TABLE,key);
+        if(query.moveToNext()){
+            float value=query.getFloat(2);
             query.close();
             return value;
-        } else {
+        } else{
             query.close();
             return defaultValue;
         }
     }
 
-    public float getFloat(String key) {
-        return getFloat(key, 0);
+    public float getFloat(String key){
+        return getFloat(key,0);
     }
 
-    public FastSaveUtils save(String key, float value) {
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, key);
-        values.put(VALUE_NAME, value);
-        saveContent(FLOAT_TABLE, key, values);
+    public FastSaveUtils save(String key,float value){
+        ContentValues values=new ContentValues();
+        values.put(KEY_NAME,key);
+        values.put(VALUE_NAME,value);
+        saveContent(FLOAT_TABLE,key,values);
         return this;
     }
 
-    //    public FastSaveUtils fastSave(String key, float value) {
-    //        ContentValues values = new ContentValues();
-    //        values.put(KEY_NAME, key);
-    //        values.put(VALUE_NAME, value);
-    //        fastSaveContent(FLOAT_TABLE, values);
-    //        return this;
-    //    }
-
-    public static float getFloat(Context context, String key, float defaultValue) {
-        try {
-            return get().editStart(context).getFloat(key, defaultValue);
-        } finally {
+    public static float getFloat(Context context,String key,float defaultValue){
+        try{
+            return get().editStart(context).getFloat(key,defaultValue);
+        } finally{
             get().editEnd();
         }
     }
 
-    public static float getFloat(Context context, String key) {
-        return getFloat(context, key, 0);
+    public static float getFloat(Context context,String key){
+        return getFloat(context,key,0);
     }
 
-    public static void save(Context context, String key, float value) {
-        get().editStart(context).save(key, value).editEnd();
+    public static void save(Context context,String key,float value){
+        get().editStart(context).save(key,value).editEnd();
     }
-
-    //    public static void fastSave(Context context, String key, float value) {
-    //        get().editStart(context).fastSave(key, value).editEnd();
-    //    }
 
     /**
      * 检查是否相同,不同就替换
@@ -525,91 +464,79 @@ public class FastSaveUtils {
      * @param value
      * @return
      */
-    public static boolean checkAndReplace(Context context, String key, float value) {
-        FastSaveUtils utils = get();
+    public static boolean checkAndReplace(Context context,String key,float value){
+        FastSaveUtils utils=get();
         boolean isCheck;
-        if (value == utils.editStart(context).getFloat(key)) {
+        if(value==utils.editStart(context).getFloat(key)){
             //如果相等的,返回true
-            isCheck = true;
-        } else {
+            isCheck=true;
+        } else{
             //不相等的保存下来返回false
-            isCheck = false;
-            utils.save(key, value);
+            isCheck=false;
+            utils.save(key,value);
         }
         utils.editEnd();
         return isCheck;
     }
 
     /**********BYTE_TABLE**********/
-    public FastSaveUtils clearByte(String key) {
-        clearKey(BYTE_TABLE, key);
+    public FastSaveUtils clearByte(String key){
+        clearKey(BYTE_TABLE,key);
         return this;
     }
 
-    public FastSaveUtils clearAllByte() {
+    public FastSaveUtils clearAllByte(){
         clearTable(BYTE_TABLE);
         return this;
     }
 
-    public static void clearByte(Context context, String key) {
+    public static void clearByte(Context context,String key){
         get().editStart(context).clearByte(key).editEnd();
     }
 
-    public static void clearAllByte(Context context) {
+    public static void clearAllByte(Context context){
         get().editStart(context).clearAllByte().editEnd();
     }
 
-    public byte getByte(String key, byte defaultValue) {
-        Cursor query = query(BYTE_TABLE, key);
-        if (query.moveToNext()) {
-            byte value = (byte) query.getInt(2);
+    public byte getByte(String key,byte defaultValue){
+        Cursor query=query(BYTE_TABLE,key);
+        if(query.moveToNext()){
+            byte value=(byte)query.getInt(2);
             query.close();
             return value;
-        } else {
+        } else{
             query.close();
             return defaultValue;
         }
     }
 
-    public byte getByte(String key) {
-        return getByte(key, (byte) 0);
+    public byte getByte(String key){
+        return getByte(key,(byte)0);
     }
 
-    public FastSaveUtils save(String key, byte value) {
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, key);
-        values.put(VALUE_NAME, value);
-        saveContent(BYTE_TABLE, key, values);
+    public FastSaveUtils save(String key,byte value){
+        ContentValues values=new ContentValues();
+        values.put(KEY_NAME,key);
+        values.put(VALUE_NAME,value);
+        saveContent(BYTE_TABLE,key,values);
         return this;
     }
 
-    //    public FastSaveUtils fastSave(String key, byte value) {
-    //        ContentValues values = new ContentValues();
-    //        values.put(KEY_NAME, key);
-    //        values.put(VALUE_NAME, value);
-    //        fastSaveContent(BYTE_TABLE, values);
-    //        return this;
-    //    }
-
-    public static byte getByte(Context context, String key, byte defaultValue) {
-        try {
-            return get().editStart(context).getByte(key, defaultValue);
-        } finally {
+    public static byte getByte(Context context,String key,byte defaultValue){
+        try{
+            return get().editStart(context).getByte(key,defaultValue);
+        } finally{
             get().editEnd();
         }
     }
 
-    public static byte getByte(Context context, String key) {
-        return getByte(context, key, (byte) 0);
+    public static byte getByte(Context context,String key){
+        return getByte(context,key,(byte)0);
     }
 
-    public static void save(Context context, String key, byte value) {
-        get().editStart(context).save(key, value).editEnd();
+    public static void save(Context context,String key,byte value){
+        get().editStart(context).save(key,value).editEnd();
     }
-
-    //    public static void fastSave(Context context, String key, byte value) {
-    //        get().editStart(context).fastSave(key, value).editEnd();
-    //    }
 
     /**
      * 检查是否相同,不同就替换
@@ -619,162 +546,138 @@ public class FastSaveUtils {
      * @param value
      * @return
      */
-    public static boolean checkAndReplace(Context context, String key, byte value) {
-        FastSaveUtils utils = get();
+    public static boolean checkAndReplace(Context context,String key,byte value){
+        FastSaveUtils utils=get();
         boolean isCheck;
-        if (value == utils.editStart(context).getByte(key)) {
+        if(value==utils.editStart(context).getByte(key)){
             //如果相等的,返回true
-            isCheck = true;
-        } else {
+            isCheck=true;
+        } else{
             //不相等的保存下来返回false
-            isCheck = false;
-            utils.save(key, value);
+            isCheck=false;
+            utils.save(key,value);
         }
         utils.editEnd();
         return isCheck;
     }
 
     /**********BLOB_TABLE**********/
-    public FastSaveUtils clearBlob(String key) {
-        clearKey(BLOB_TABLE, key);
+    public FastSaveUtils clearBlob(String key){
+        clearKey(BLOB_TABLE,key);
         return this;
     }
 
-    public FastSaveUtils clearAllBlob() {
+    public FastSaveUtils clearAllBlob(){
         clearTable(BLOB_TABLE);
         return this;
     }
 
-    public static void clearBlob(Context context, String key) {
+    public static void clearBlob(Context context,String key){
         get().editStart(context).clearBlob(key).editEnd();
     }
 
-    public static void clearAllBlob(Context context) {
+    public static void clearAllBlob(Context context){
         get().editStart(context).clearAllBlob().editEnd();
     }
 
-    public byte[] getBlob(String key, byte[] defaultValue) {
-        Cursor query = query(BLOB_TABLE, key);
-        if (query.moveToNext()) {
-            byte[] value = query.getBlob(2);
+    public byte[] getBlob(String key,byte[] defaultValue){
+        Cursor query=query(BLOB_TABLE,key);
+        if(query.moveToNext()){
+            byte[] value=query.getBlob(2);
             query.close();
             return value;
-        } else {
+        } else{
             query.close();
             return defaultValue;
         }
     }
 
-    public byte[] getBlob(String key) {
-        return getBlob(key, null);
+    public byte[] getBlob(String key){
+        return getBlob(key,null);
     }
 
-    public FastSaveUtils save(String key, byte[] value) {
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, key);
-        values.put(VALUE_NAME, value);
-        saveContent(BLOB_TABLE, key, values);
+    public FastSaveUtils save(String key,byte[] value){
+        ContentValues values=new ContentValues();
+        values.put(KEY_NAME,key);
+        values.put(VALUE_NAME,value);
+        saveContent(BLOB_TABLE,key,values);
         return this;
     }
 
-    //    public FastSaveUtils fastSave(String key, byte[] value) {
-    //        ContentValues values = new ContentValues();
-    //        values.put(KEY_NAME, key);
-    //        values.put(VALUE_NAME, value);
-    //        fastSaveContent(BLOB_TABLE, values);
-    //        return this;
-    //    }
-
-    public static byte[] getBlob(Context context, String key, byte[] defaultValue) {
-        try {
-            return get().editStart(context).getBlob(key, defaultValue);
-        } finally {
+    public static byte[] getBlob(Context context,String key,byte[] defaultValue){
+        try{
+            return get().editStart(context).getBlob(key,defaultValue);
+        } finally{
             get().editEnd();
         }
     }
 
-    public static byte[] getBlob(Context context, String key) {
-        return getBlob(context, key, null);
+    public static byte[] getBlob(Context context,String key){
+        return getBlob(context,key,null);
     }
 
-    public static void save(Context context, String key, byte[] value) {
-        get().editStart(context).save(key, value).editEnd();
+    public static void save(Context context,String key,byte[] value){
+        get().editStart(context).save(key,value).editEnd();
     }
-
-    //    public static void fastSave(Context context, String key, byte[] value) {
-    //        get().editStart(context).fastSave(key, value).editEnd();
-    //    }
 
     /**********SHORT_TABLE**********/
-    public FastSaveUtils clearShort(String key) {
-        clearKey(SHORT_TABLE, key);
+    public FastSaveUtils clearShort(String key){
+        clearKey(SHORT_TABLE,key);
         return this;
     }
 
-    public FastSaveUtils clearAllShort() {
+    public FastSaveUtils clearAllShort(){
         clearTable(SHORT_TABLE);
         return this;
     }
 
-    public static void clearShort(Context context, String key) {
+    public static void clearShort(Context context,String key){
         get().editStart(context).clearShort(key).editEnd();
     }
 
-    public static void clearAllShort(Context context) {
+    public static void clearAllShort(Context context){
         get().editStart(context).clearAllShort().editEnd();
     }
 
-    public short getShort(String key, short defaultValue) {
-        Cursor query = query(SHORT_TABLE, key);
-        if (query.moveToNext()) {
-            short value = query.getShort(2);
+    public short getShort(String key,short defaultValue){
+        Cursor query=query(SHORT_TABLE,key);
+        if(query.moveToNext()){
+            short value=query.getShort(2);
             query.close();
             return value;
-        } else {
+        } else{
             query.close();
             return defaultValue;
         }
     }
 
-    public short getShort(String key) {
-        return getShort(key, (short) 0);
+    public short getShort(String key){
+        return getShort(key,(short)0);
     }
 
-    public FastSaveUtils save(String key, short value) {
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, key);
-        values.put(VALUE_NAME, value);
-        saveContent(SHORT_TABLE, key, values);
+    public FastSaveUtils save(String key,short value){
+        ContentValues values=new ContentValues();
+        values.put(KEY_NAME,key);
+        values.put(VALUE_NAME,value);
+        saveContent(SHORT_TABLE,key,values);
         return this;
     }
 
-    //    public FastSaveUtils fastSave(String key, short value) {
-    //        ContentValues values = new ContentValues();
-    //        values.put(KEY_NAME, key);
-    //        values.put(VALUE_NAME, value);
-    //        fastSaveContent(SHORT_TABLE, values);
-    //        return this;
-    //    }
-
-    public static short getShort(Context context, String key, short defaultValue) {
-        try {
-            return get().editStart(context).getShort(key, defaultValue);
-        } finally {
+    public static short getShort(Context context,String key,short defaultValue){
+        try{
+            return get().editStart(context).getShort(key,defaultValue);
+        } finally{
             get().editEnd();
         }
     }
 
-    public static short getShort(Context context, String key) {
-        return getShort(context, key, (short) 0);
+    public static short getShort(Context context,String key){
+        return getShort(context,key,(short)0);
     }
 
-    public static void save(Context context, String key, short value) {
-        get().editStart(context).save(key, value).editEnd();
+    public static void save(Context context,String key,short value){
+        get().editStart(context).save(key,value).editEnd();
     }
-
-    //    public static void fastSave(Context context, String key, short value) {
-    //        get().editStart(context).fastSave(key, value).editEnd();
-    //    }
 
     /**
      * 检查是否相同,不同就替换
@@ -784,91 +687,79 @@ public class FastSaveUtils {
      * @param value
      * @return
      */
-    public static boolean checkAndReplace(Context context, String key, short value) {
-        FastSaveUtils utils = get();
+    public static boolean checkAndReplace(Context context,String key,short value){
+        FastSaveUtils utils=get();
         boolean isCheck;
-        if (value == utils.editStart(context).getShort(key)) {
+        if(value==utils.editStart(context).getShort(key)){
             //如果相等的,返回true
-            isCheck = true;
-        } else {
+            isCheck=true;
+        } else{
             //不相等的保存下来返回false
-            isCheck = false;
-            utils.save(key, value);
+            isCheck=false;
+            utils.save(key,value);
         }
         utils.editEnd();
         return isCheck;
     }
 
     /**********DOUBLE_TABLE**********/
-    public FastSaveUtils clearDouble(String key) {
-        clearKey(DOUBLE_TABLE, key);
+    public FastSaveUtils clearDouble(String key){
+        clearKey(DOUBLE_TABLE,key);
         return this;
     }
 
-    public FastSaveUtils clearAllDouble() {
+    public FastSaveUtils clearAllDouble(){
         clearTable(DOUBLE_TABLE);
         return this;
     }
 
-    public static void clearDouble(Context context, String key) {
+    public static void clearDouble(Context context,String key){
         get().editStart(context).clearDouble(key).editEnd();
     }
 
-    public static void clearAllDouble(Context context) {
+    public static void clearAllDouble(Context context){
         get().editStart(context).clearAllDouble().editEnd();
     }
 
-    public double getDouble(String key, double defaultValue) {
-        Cursor query = query(DOUBLE_TABLE, key);
-        if (query.moveToNext()) {
-            double value = query.getDouble(2);
+    public double getDouble(String key,double defaultValue){
+        Cursor query=query(DOUBLE_TABLE,key);
+        if(query.moveToNext()){
+            double value=query.getDouble(2);
             query.close();
             return value;
-        } else {
+        } else{
             query.close();
             return defaultValue;
         }
     }
 
-    public double getDouble(String key) {
-        return getDouble(key, 0);
+    public double getDouble(String key){
+        return getDouble(key,0);
     }
 
-    public FastSaveUtils save(String key, double value) {
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, key);
-        values.put(VALUE_NAME, value);
-        saveContent(DOUBLE_TABLE, key, values);
+    public FastSaveUtils save(String key,double value){
+        ContentValues values=new ContentValues();
+        values.put(KEY_NAME,key);
+        values.put(VALUE_NAME,value);
+        saveContent(DOUBLE_TABLE,key,values);
         return this;
     }
 
-    //    public FastSaveUtils fastSave(String key, double value) {
-    //        ContentValues values = new ContentValues();
-    //        values.put(KEY_NAME, key);
-    //        values.put(VALUE_NAME, value);
-    //        fastSaveContent(DOUBLE_TABLE, values);
-    //        return this;
-    //    }
-
-    public static double getDouble(Context context, String key, double defaultValue) {
-        try {
-            return get().editStart(context).getDouble(key, defaultValue);
-        } finally {
+    public static double getDouble(Context context,String key,double defaultValue){
+        try{
+            return get().editStart(context).getDouble(key,defaultValue);
+        } finally{
             get().editEnd();
         }
     }
 
-    public static double getDouble(Context context, String key) {
-        return getDouble(context, key, 0d);
+    public static double getDouble(Context context,String key){
+        return getDouble(context,key,0d);
     }
 
-    public static void save(Context context, String key, double value) {
-        get().editStart(context).save(key, value).editEnd();
+    public static void save(Context context,String key,double value){
+        get().editStart(context).save(key,value).editEnd();
     }
-
-    //    public static void fastSave(Context context, String key, double value) {
-    //        get().editStart(context).fastSave(key, value).editEnd();
-    //    }
 
     /**
      * 检查是否相同,不同就替换
@@ -878,51 +769,37 @@ public class FastSaveUtils {
      * @param value
      * @return
      */
-    public static boolean checkAndReplace(Context context, String key, double value) {
-        FastSaveUtils utils = get();
+    public static boolean checkAndReplace(Context context,String key,double value){
+        FastSaveUtils utils=get();
         boolean isCheck;
-        if (value == utils.editStart(context).getDouble(key)) {
+        if(value==utils.editStart(context).getDouble(key)){
             //如果相等的,返回true
-            isCheck = true;
-        } else {
+            isCheck=true;
+        } else{
             //不相等的保存下来返回false
-            isCheck = false;
-            utils.save(key, value);
+            isCheck=false;
+            utils.save(key,value);
         }
         utils.editEnd();
         return isCheck;
     }
 
     /**********DOUBLE_TABLE**********/
-    private void saveContent(String table, String key, ContentValues value) {
-        //        Cursor query = query(table, key);
-        //        if (query.moveToNext()) {
-        //            int id = query.getInt(0);
-        //            query.close();
-        //            writableDatabase.update(table, value, "id = ?", new String[]{String.valueOf(id)});
-        //        } else {
-        //            query.close();
-        clearKey(table, key);
-        writableDatabase.insert(table, "", value);
-        //        }
+    private void saveContent(String table,String key,ContentValues value){
+        writableDatabase.replace(table,KEY_NAME,value);
     }
 
-    private boolean clearKey(String table, String key) {
-        writableDatabase.delete(table, KEY_NAME + " = ?", new String[]{key});
+    private boolean clearKey(String table,String key){
+        writableDatabase.delete(table,KEY_NAME+" = ?",new String[]{key});
         return true;
     }
 
-    private void clearTable(String table) {
-        writableDatabase.execSQL("DELETE FROM " + table);
+    private void clearTable(String table){
+        writableDatabase.execSQL("DELETE FROM "+table);
     }
 
-    private Cursor query(String table, String key) {
-        Cursor query = writableDatabase.query(table, null, KEY_NAME + " = ?", new String[]{key},
-                null, null, "id desc");
+    private Cursor query(String table,String key){
+        Cursor query=writableDatabase.query(table,null,KEY_NAME+" = ?",new String[]{key},null,null,"id desc");
         return query;
     }
-
-    //    private void fastSaveContent(String table, ContentValues value) {
-    //        writableDatabase.insert(table, "", value);
-    //    }
 }

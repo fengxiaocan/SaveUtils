@@ -18,18 +18,18 @@ public class MainActivity extends AppCompatActivity {
         utils.save("MainActivity","adsf154444");
         utils.save("MainActivity",false);
         utils.save("MainActivity",5410);
-        utils.save("MainActivity",10000L);
+        utils.save("MainActivity",1000L);
         utils.save("MainActivity",10000.00111D);
 
         utils.save("MainActivity","775as54ads");
-        utils.save("MainActivity",true);
-        utils.save("MainActivity",5401);
+        utils.save("MainActivity",false);
+        utils.save("MainActivity",5402211);
         utils.save("MainActivity",120231L);
         utils.save("MainActivity",1830.0011D);
 
         utils.save("MainActivity","1898465456486");
         utils.save("MainActivity",true);
-        utils.save("MainActivity",54501);
+        utils.save("MainActivity",545);
         utils.save("MainActivity",121L);
         utils.save("MainActivity",18120D);
 
@@ -46,5 +46,13 @@ public class MainActivity extends AppCompatActivity {
         Log.e("noah",String.valueOf(utils.getDouble("MainActivity")));
 
         utils.editEnd();
+        FastSaveUtils.get().editStart(this).save("1123","大事记").save("nmiah",1002398).editEnd();
+        if (!FastSaveUtils.checkAndReplace(this,"hhh", "判断是否相同,不相同则替换该值," +
+                                                      "返回false为不相同"))
+        {
+            //不相同的值,并且替换为新的value
+            Log.e("noah","不相同的值,并且替换为新的value");
+            Log.e("noah",FastSaveUtils.getString(this,"hhh"));
+        }
     }
 }
